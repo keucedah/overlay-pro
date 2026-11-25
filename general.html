@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlay general</title>
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+  canvas { position: absolute; left: 50%; top: 50%; width: 100vmin; height: 100vmin; transform: translate(-50%, -50%); }
+  #diag { display: none; position: absolute; left: 8px; top: 8px; right: 8px; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,.75); color: #fff; font: 600 14px/1.4 system-ui, sans-serif; z-index: 2; }
+  body.debug #diag { display: block; }
+  body.debug canvas { outline: 3px dashed #3fa9ff; }
+</style>
+</head>
+<body>
+<canvas id="c" width="720" height="720"></canvas>
+<div id="diag"></div>
+<script src="reproductor.js"></script>
+<script>
+// Enlace GENERAL: general.html?canal=XXXX
+// Espera órdenes del panel (por ntfy.sh y, en el mismo navegador, por BroadcastChannel).
+const q = new URLSearchParams(location.search);
+const canal = (q.get("canal") || "").replace(/[^A-Za-z0-9_-]/g, "");
+if (q.get("debug") === "1") document.body.classList.add("debug");
+const diag = document.getElementById("diag");
+const log = (t) => { diag.textContent = "[general] " + t; };
+
+const rep = crearReproductor(document.getElementById("c"), log);
+OVERLAYS.forEach(o => rep.cargar(o));   // precargar todo al abrir
+
+function orden(texto) {
+  let m; try { m = JSON.parse(texto); } catch (e) { m = { id: texto }; }
+  if (m && m.id === "__detener") { rep.detener(); log("Detenido"); return; }
+  if (m && m.id) rep.reproducir(m.id, m.vol == null ? 1 : m.vol);
+}
+
+if (!canal) log("Falta ?canal= en el enlace");
+else {
+  log((rep.tieneWebGL ? "WebGL OK" : "SIN WebGL") + " · conectando al canal " + canal + "…");
+  try { new BroadcastChannel("ov-" + canal).onmessage = (e) => orden(e.data); } catch (e) {}
+  function conectar() {
+    const es = new EventSource(NTFY + "ov-" + canal + "/sse");
+    es.onopen = () => log((rep.tieneWebGL ? "WebGL OK" : "SIN WebGL") + " · conectado, esperando órdenes");
+    es.onmessage = (e) => { try { const d = JSON.parse(e.data); if (d.event === "message") orden(d.message); } catch (err) {} };
+    es.onerror = () => log("Sin conexión al canal; reintentando…");
+  }
+  conectar();
+}
+</script>
+</body>
+</html>

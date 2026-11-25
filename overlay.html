@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlay</title>
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+  canvas { position: absolute; left: 50%; top: 50%; width: 100vmin; height: 100vmin; transform: translate(-50%, -50%); }
+  #diag { display: none; position: absolute; left: 8px; top: 8px; right: 8px; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,.75); color: #fff; font: 600 14px/1.4 system-ui, sans-serif; z-index: 2; }
+  body.debug #diag { display: block; }
+  body.debug canvas { outline: 3px dashed #ff3b5c; }
+</style>
+</head>
+<body>
+<canvas id="c" width="720" height="720"></canvas>
+<div id="diag"></div>
+<script src="reproductor.js"></script>
+<script>
+// Enlace de UN overlay: overlay.html?o=x2_dorado
+//   &vol=80     volumen 0-100
+//   &debug=1    muestra borde y mensajes para diagnosticar
+const q = new URLSearchParams(location.search);
+const id = q.get("o") || "x2_dorado";
+const vol = Math.max(0, Math.min(100, parseInt(q.get("vol") || "100", 10))) / 100;
+if (q.get("debug") === "1") document.body.classList.add("debug");
+const diag = document.getElementById("diag");
+const log = (t) => { diag.textContent = "[" + id + "] " + t; };
+
+const rep = crearReproductor(document.getElementById("c"), log);
+log(rep.tieneWebGL ? "WebGL OK · cargando…" : "SIN WebGL");
+const o = OVERLAYS.find(x => x.id === id);
+if (o) rep.cargar(o);
+
+// Se reproduce al abrir la fuente…
+window.addEventListener("load", () => setTimeout(() => rep.reproducir(id, vol), 150));
+// …y otra vez cada vez que la fuente vuelve a ser visible (si el programa lo informa).
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") rep.reproducir(id, vol);
+  else rep.detener();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+PRUEBA DE ENLACES PARA TIKTOK LIVE STUDIO
+=========================================
+
+Qué hay en esta carpeta
+- index.html ........ panel de prueba (enlaces, miniaturas, vista previa y botones)
+- overlay.html ...... enlace individual (una animación por enlace)
+- general.html ...... enlace general (todas las animaciones en un solo enlace)
+- reproductor.js .... reproductor con transparencia
+- overlays/ ......... las 5 animaciones
+- miniaturas/ ....... las imágenes de vista previa
+
+
+PASO 1 · Subir la carpeta a internet (gratis, unos 2 minutos)
+1. En tu computadora, descomprime el ZIP. Queda la carpeta "prueba".
+2. Entra a https://app.netlify.com/drop
+3. Arrastra la carpeta "prueba" completa a la página.
+   (Netlify puede pedirte crear una cuenta gratis para que el sitio no se borre.)
+4. Netlify te da un enlace como https://nombre-raro-123.netlify.app
+   Ábrelo: es tu panel de prueba.
+
+
+PASO 2 · Probar el ENLACE INDIVIDUAL
+1. En el panel, en un overlay (por ejemplo X2 ORO), pulsa "Copiar enlace".
+2. Abre TikTok LIVE Studio > Fuentes > "+" > Link > pega el enlace > Agregar.
+3. Ajusta la fuente a 1080 x 1080 y colócala encima de tu cámara.
+4. Revisa: tamaño, transparencia, animación y sonido.
+5. Oculta la fuente (icono del ojo) y vuelve a mostrarla:
+   ¿la animación empieza otra vez? Anota el resultado.
+
+
+PASO 3 · Probar el ENLACE GENERAL
+1. En el panel, pulsa "Copiar enlace general" y pégalo en LIVE Studio igual que antes.
+2. Con el panel abierto en tu PC o en tu celular, pulsa "Lanzar en enlace general"
+   en cualquier overlay.
+3. La animación debe aparecer en LIVE Studio en uno o dos segundos.
+
+
+CONSEJOS
+- "Modo diagnóstico" agrega un borde y mensajes al overlay que dicen si cargó,
+  si hay WebGL y si el sonido quedó bloqueado. Actívalo ANTES de copiar los enlaces.
+  Quítalo y vuelve a copiar los enlaces cuando todo funcione.
+- Prueba primero sin estar en vivo (vista previa de LIVE Studio).
+- Si algo falla, toma una captura de la vista previa de LIVE Studio con el
+  modo diagnóstico activado y envíamela.
+
+
+IMPORTANTE
+- Esta es solo una prueba técnica. Los enlaces NO tienen protección ni suscripción:
+  cualquiera que los tenga puede verlos. No los publiques.
+- El enlace general usa ntfy.sh, un servicio público gratuito, para pasar las
+  órdenes del panel al overlay. En la plataforma real esto lo haría tu propio servidor.
+- Usa el enlace "Crear canal nuevo" si quieres cambiar el canal del enlace general.

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba de enlaces para TikTok LIVE Studio</title>
+<style>
+  :root { --bg:#0E0B08; --panel:#17120D; --line:#2A2118; --line2:#3A2D1C; --text:#F5EBDD; --muted:#B8A994; --gold:#F2B33D; --ink:#1A1206; --ok:#8FD694; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 Inter, system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 18px 60px; display: flex; flex-direction: column; gap: 22px; }
+  h1 { margin: 0; font: 800 28px/1.2 system-ui, sans-serif; letter-spacing: .3px; }
+  h2 { margin: 0; font-size: 18px; }
+  p { margin: 0; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  code.link { flex: 1 1 320px; min-width: 0; display: block; padding: 12px 14px; border-radius: 10px; background: #0E0B08; border: 1px solid var(--line2); color: #E9DCC7; font: 13px ui-monospace, monospace; word-break: break-all; }
+  button { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line2); background: #0E0B08; color: var(--text); font: 600 14px system-ui, sans-serif; cursor: pointer; }
+  button.primary { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 700; }
+  button:focus-visible { outline: 3px solid #FFD27A; outline-offset: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+  .ov { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+  .ov img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+  .ov .body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .ov .t { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .ov .t b { font-size: 17px; }
+  .badge { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #2A1F12; color: var(--gold); border: 1px solid #5A4628; }
+  .ov code.link { flex: none; font-size: 12px; }
+  .ov .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ov .btns button { padding: 0 8px; font-size: 13px; }
+  .ov .btns .full { grid-column: 1 / -1; }
+  .preview { position: relative; width: min(100%, 420px); aspect-ratio: 1/1; margin: 0 auto; border-radius: 14px; overflow: hidden;
+    background-color: #ddd; background-image: linear-gradient(45deg,#bbb 25%,transparent 25%),linear-gradient(-45deg,#bbb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#bbb 75%),linear-gradient(-45deg,transparent 75%,#bbb 75%);
+    background-size: 28px 28px; background-position: 0 0,0 14px,14px -14px,-14px 0; }
+  .preview canvas { width: 100%; height: 100%; display: block; }
+  ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+  label.chk { display: flex; gap: 10px; align-items: flex-start; }
+  label.chk input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--gold); flex: none; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ok); color: #10210F; font-weight: 700; padding: 10px 16px; border-radius: 10px; }
+  .warn { color: #FFC9A3; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Prueba de enlaces para TikTok LIVE Studio</h1>
+    <p class="muted">Copia un enlace, pégalo en LIVE Studio como fuente “Link” y revisa la lista de comprobación de abajo.</p>
+  </div>
+
+  <section class="card" aria-labelledby="t-general">
+    <h2 id="t-general">1. Enlace general (todos los overlays en uno)</h2>
+    <p class="muted">Pégalo una vez en LIVE Studio. Luego lanza las animaciones con los botones “Lanzar” de cada overlay, desde esta página en tu PC o celular.</p>
+    <div class="row">
+      <code class="link" id="linkGeneral"></code>
+      <button class="primary" type="button" id="copyGeneral">Copiar enlace general</button>
+    </div>
+    <div class="row">
+      <button type="button" id="stopGeneral">Detener animación</button>
+      <button type="button" id="newCanal">Crear canal nuevo</button>
+      <label class="chk" style="align-items:center"><input type="checkbox" id="debug"> Modo diagnóstico (borde y mensajes en el overlay)</label>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="t-ov">
+    <h2 id="t-ov">2. Overlays (enlace individual de cada uno)</h2>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="card" aria-labelledby="t-prev" id="prevCard">
+    <h2 id="t-prev">Vista previa</h2>
+    <p class="muted">El fondo a cuadros muestra la transparencia: lo que ves de cuadros, en tu live será tu cámara.</p>
+    <div class="preview"><canvas id="prev" width="720" height="720"></canvas></div>
+    <p class="muted" id="prevMsg">Toca “Vista previa” en un overlay.</p>
+  </section>
+
+  <section class="card" aria-labelledby="t-check">
+    <h2 id="t-check">3. Lista de comprobación en LIVE Studio</h2>
+    <ol>
+      <li><label class="chk"><input type="checkbox"> <span><b>Tamaño:</b> el overlay se ve grande, no como un rectángulo pequeño. Si sale pequeño, ajusta el ancho y alto de la fuente a 1080 × 1080.</span></label></li>
+      <li><label class="chk"><input type="checkbox"> <span><b>Transparencia:</b> se ve tu cámara detrás, sin fondo negro.</span></label></li>
+      <li><label class="chk"><input type="checkbox"> <span><b>Animación:</b> se mueve con fluidez.</span></label></li>
+      <li><label class="chk"><input type="checkbox"> <span><b>Sonido:</b> se escucha en el live. Con “Modo diagnóstico” el overlay dice si el programa bloqueó el audio.</span></label></li>
+      <li><label class="chk"><input type="checkbox"> <span><b>Reinicio (enlace individual):</b> al ocultar y volver a mostrar la fuente, la animación vuelve a empezar.</span></label></li>
+      <li><label class="chk"><input type="checkbox"> <span><b>Disparo (enlace general):</b> al tocar “Lanzar” aquí, la animación aparece en LIVE Studio en uno o dos segundos.</span></label></li>
+    </ol>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="reproductor.js"></script>
+<script>
+const base = location.href.replace(/[^/]*([?#].*)?$/, "");
+const debugBox = document.getElementById("debug");
+
+function nuevoCanal() {
+  const a = new Uint8Array(9); crypto.getRandomValues(a);
+  return Array.from(a, b => "abcdefghijkmnpqrstuvwxyz23456789"[b % 32]).join("");
+}
+let canal = null;
+try { canal = localStorage.getItem("ov-canal"); } catch (e) {}
+if (!canal) { canal = nuevoCanal(); try { localStorage.setItem("ov-canal", canal); } catch (e) {} }
+
+const dbg = () => debugBox.checked ? "&debug=1" : "";
+const linkGeneral = () => base + "general.html?canal=" + canal + dbg();
+const linkOverlay = (id) => base + "overlay.html?o=" + id + dbg();
+
+function aviso(t) {
+  const el = document.getElementById("toast"); el.textContent = t; el.hidden = false;
+  clearTimeout(aviso.t); aviso.t = setTimeout(() => el.hidden = true, 2200);
+}
+async function copiar(texto) {
+  try { await navigator.clipboard.writeText(texto); aviso("Enlace copiado"); }
+  catch (e) {
+    const ta = document.createElement("textarea"); ta.value = texto; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (err) {}
+    ta.remove(); aviso(ok ? "Enlace copiado" : "No se pudo copiar: mantén presionado el enlace para copiarlo");
+  }
+}
+
+let bc = null; try { bc = new BroadcastChannel("ov-" + canal); } catch (e) {}
+async function enviar(msg) {
+  const texto = JSON.stringify(msg);
+  if (bc) bc.postMessage(texto);
+  try {
+    const r = await fetch(NTFY + "ov-" + canal, { method: "POST", body: texto });
+    if (!r.ok) throw new Error(r.status);
+    aviso(msg.id === "__detener" ? "Orden enviada: detener" : "Orden enviada: " + msg.id);
+  } catch (e) { aviso("No se pudo enviar la orden (¿sin internet?)"); }
+}
+
+function pintarLinks() {
+  document.getElementById("linkGeneral").textContent = linkGeneral();
+  OVERLAYS.forEach(o => { const el = document.getElementById("link-" + o.id); if (el) el.textContent = linkOverlay(o.id); });
+}
+
+// Tarjetas de overlays
+const grid = document.getElementById("grid");
+const prev = crearReproductor(document.getElementById("prev"), t => document.getElementById("prevMsg").textContent = t);
+OVERLAYS.forEach(o => {
+  const art = document.createElement("article"); art.className = "ov";
+  art.innerHTML = '<img alt=""><div class="body"><div class="t"><b></b><span class="badge"></span></div><span class="muted d"></span>' +
+    '<code class="link" id="link-' + o.id + '"></code><div class="btns">' +
+    '<button type="button" data-a="prev">Vista previa</button><button type="button" data-a="copy">Copiar enlace</button>' +
+    '<button type="button" class="primary full" data-a="lanzar">Lanzar en enlace general</button></div></div>';
+  art.querySelector("img").src = o.miniatura; art.querySelector("img").alt = "Miniatura de " + o.nombre;
+  art.querySelector("b").textContent = o.nombre;
+  art.querySelector(".badge").textContent = o.plan;
+  art.querySelector(".d").textContent = o.desc;
+  art.querySelector('[data-a="prev"]').onclick = () => { prev.reproducir(o.id, 1); document.getElementById("prevCard").scrollIntoView({ behavior: "smooth", block: "center" }); };
+  art.querySelector('[data-a="copy"]').onclick = () => copiar(linkOverlay(o.id));
+  art.querySelector('[data-a="lanzar"]').onclick = () => enviar({ id: o.id, vol: 1 });
+  grid.appendChild(art);
+});
+
+document.getElementById("copyGeneral").onclick = () => copiar(linkGeneral());
+document.getElementById("stopGeneral").onclick = () => enviar({ id: "__detener" });
+document.getElementById("newCanal").onclick = () => {
+  canal = nuevoCanal(); try { localStorage.setItem("ov-canal", canal); } catch (e) {}
+  try { bc && bc.close(); bc = new BroadcastChannel("ov-" + canal); } catch (e) {}
+  pintarLinks(); aviso("Canal nuevo: vuelve a copiar el enlace general");
+};
+debugBox.onchange = pintarLinks;
+pintarLinks();
+
+if (location.protocol === "file:") {
+  document.querySelector("h1").insertAdjacentHTML("afterend", '<p class="warn">Estás abriendo el archivo en tu computadora. Para probar en LIVE Studio, sube la carpeta a Netlify (ver LEEME.txt) y abre el enlace https que te dé.</p>');
+}
+</script>
+</body>
+</html>
