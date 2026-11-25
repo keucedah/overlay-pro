@@ -51,7 +51,7 @@
 
   <section class="card" aria-labelledby="t-general">
     <h2 id="t-general">1. Enlace general (todos los overlays en uno)</h2>
-    <p class="muted">Pégalo una vez en LIVE Studio. Luego lanza las animaciones con los botones “Lanzar” de cada overlay, desde esta página en tu PC o celular.</p>
+    <p class="muted">Pégalo una vez en LIVE Studio. Luego lanza las animaciones con los botones “Lanzar” de cada overlay, desde esta página en tu PC o celular. El botón “Lanzar” también activa los enlaces individuales.</p>
     <div class="row">
       <code class="link" id="linkGeneral"></code>
       <button class="primary" type="button" id="copyGeneral">Copiar enlace general</button>
@@ -82,7 +82,7 @@
       <li><label class="chk"><input type="checkbox"> <span><b>Transparencia:</b> se ve tu cámara detrás, sin fondo negro.</span></label></li>
       <li><label class="chk"><input type="checkbox"> <span><b>Animación:</b> se mueve con fluidez.</span></label></li>
       <li><label class="chk"><input type="checkbox"> <span><b>Sonido:</b> se escucha en el live. Con “Modo diagnóstico” el overlay dice si el programa bloqueó el audio.</span></label></li>
-      <li><label class="chk"><input type="checkbox"> <span><b>Reinicio (enlace individual):</b> al ocultar y volver a mostrar la fuente, la animación vuelve a empezar.</span></label></li>
+      <li><label class="chk"><input type="checkbox"> <span><b>Enlace individual:</b> al tocar “Lanzar” en ese overlay, la animación vuelve a salir. (Prueba también el ojo 👁: puede o no reiniciarla, según LIVE Studio.)</span></label></li>
       <li><label class="chk"><input type="checkbox"> <span><b>Disparo (enlace general):</b> al tocar “Lanzar” aquí, la animación aparece en LIVE Studio en uno o dos segundos.</span></label></li>
     </ol>
   </section>
@@ -104,7 +104,7 @@ if (!canal) { canal = nuevoCanal(); try { localStorage.setItem("ov-canal", canal
 
 const dbg = () => debugBox.checked ? "&debug=1" : "";
 const linkGeneral = () => base + "general.html?canal=" + canal + dbg();
-const linkOverlay = (id) => base + "overlay.html?o=" + id + dbg();
+const linkOverlay = (id) => base + "overlay.html?o=" + id + "&canal=" + canal + dbg();
 
 function aviso(t) {
   const el = document.getElementById("toast"); el.textContent = t; el.hidden = false;
@@ -143,7 +143,7 @@ OVERLAYS.forEach(o => {
   art.innerHTML = '<img alt=""><div class="body"><div class="t"><b></b><span class="badge"></span></div><span class="muted d"></span>' +
     '<code class="link" id="link-' + o.id + '"></code><div class="btns">' +
     '<button type="button" data-a="prev">Vista previa</button><button type="button" data-a="copy">Copiar enlace</button>' +
-    '<button type="button" class="primary full" data-a="lanzar">Lanzar en enlace general</button></div></div>';
+    '<button type="button" class="primary full" data-a="lanzar">Lanzar</button></div></div>';
   art.querySelector("img").src = o.miniatura; art.querySelector("img").alt = "Miniatura de " + o.nombre;
   art.querySelector("b").textContent = o.nombre;
   art.querySelector(".badge").textContent = o.plan;

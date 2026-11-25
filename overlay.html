@@ -32,13 +32,35 @@ log(rep.tieneWebGL ? "WebGL OK · cargando…" : "SIN WebGL");
 const o = OVERLAYS.find(x => x.id === id);
 if (o) rep.cargar(o);
 
-// Se reproduce al abrir la fuente…
+// 1) Se reproduce al abrir la fuente.
 window.addEventListener("load", () => setTimeout(() => rep.reproducir(id, vol), 150));
-// …y otra vez cada vez que la fuente vuelve a ser visible (si el programa lo informa).
+
+// 2) Si el programa avisa que la fuente se ocultó y se volvió a mostrar.
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") rep.reproducir(id, vol);
-  else rep.detener();
 });
+
+// 3) Si el programa pausa la página mientras está oculta: al volver, hay un
+//    "hueco" en los cuadros de animación. Lo detectamos y reiniciamos.
+let ultimo = performance.now();
+function vigilar(ahora) {
+  if (ahora - ultimo > 1500) rep.reproducir(id, vol);
+  ultimo = ahora;
+  requestAnimationFrame(vigilar);
+}
+requestAnimationFrame(vigilar);
+
+// 4) Orden desde el panel: botón "Lanzar" (lo más confiable en LIVE Studio).
+const canal = (q.get("canal") || "").replace(/[^A-Za-z0-9_-]/g, "");
+function orden(texto) {
+  let m; try { m = JSON.parse(texto); } catch (e) { m = { id: texto }; }
+  if (m && m.id === id) rep.reproducir(id, m.vol == null ? vol : m.vol);
+}
+if (canal) {
+  try { new BroadcastChannel("ov-" + canal).onmessage = (e) => orden(e.data); } catch (e) {}
+  const es = new EventSource(NTFY + "ov-" + canal + "/sse");
+  es.onmessage = (e) => { try { const d = JSON.parse(e.data); if (d.event === "message") orden(d.message); } catch (err) {} };
+}
 </script>
 </body>
 </html>
